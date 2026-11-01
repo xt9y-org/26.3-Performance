@@ -29,9 +29,6 @@ public final class PerfClient implements ClientModInitializer {
         final boolean clientSmoke = "1".equals(System.getenv("XT9Y_CLIENT_SMOKE"));
         final boolean[] firstTick = {true};
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (CheatMenu.visible() && (client.player == null || client.gui.screen() != null)) {
-                CheatMenu.close();
-            }
             if (clientSmoke && firstTick[0]) {
                 firstTick[0] = false;
                 dev.xt9y.perf.PerfMod.LOGGER.info("XT9Y_CLIENT_SMOKE: client ticks running");
@@ -41,17 +38,7 @@ public final class PerfClient implements ClientModInitializer {
                 NativeBridge.record(2, System.nanoTime() - begin);
             }
             while (toggle.consumeClick()) {
-                // Minecraft 26.3 uses SDL key constants, not GLFW.
-                boolean ctrl = InputConstants.isKeyDown(InputConstants.KEY_LCONTROL)
-                        || InputConstants.isKeyDown(InputConstants.KEY_RCONTROL);
-                boolean shift = InputConstants.isKeyDown(InputConstants.KEY_LSHIFT);
-                boolean alt = InputConstants.isKeyDown(InputConstants.KEY_LALT)
-                        || InputConstants.isKeyDown(InputConstants.KEY_RALT);
-                if (ctrl && shift && alt && client.player != null && client.gui.screen() == null) {
-                    CheatMenu.toggle();
-                } else if (!(ctrl && shift && alt)) {
-                    DebugMenu.toggle();
-                }
+                DebugMenu.toggle();
             }
         });
     }

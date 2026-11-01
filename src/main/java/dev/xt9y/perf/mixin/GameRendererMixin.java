@@ -3,7 +3,6 @@ package dev.xt9y.perf.mixin;
 import dev.xt9y.perf.NativeBridge;
 import dev.xt9y.perf.PerformanceState;
 import dev.xt9y.perf.client.DebugMenu;
-import dev.xt9y.perf.client.CheatMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -51,12 +50,9 @@ public final class GameRendererMixin {
         if (PerformanceState.active()) {
             NativeBridge.record(1, System.nanoTime() - xt9y263$renderStartNs);
         }
-        if ((!DebugMenu.visible() && !CheatMenu.visible()) || !IMGUI.isCreated() || minecraft.player == null) return;
+        if (!DebugMenu.visible() || !IMGUI.isCreated() || minecraft.player == null) return;
         if (minecraft.gui.screen() != null
                 && !(minecraft.gui.screen() instanceof ChatScreen)) return;
-        IMGUI.draw(io -> {
-            DebugMenu.draw(io);
-            CheatMenu.draw(io);
-        });
+        IMGUI.draw(DebugMenu::draw);
     }
 }
