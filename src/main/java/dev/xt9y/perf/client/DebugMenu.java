@@ -40,6 +40,20 @@ public final class DebugMenu {
         history[history.length - 1] = Float.isFinite(value) ? value : 0;
     }
 
+    /** Avoid plot labels being rendered to the right of the graph and clipped. */
+    static void plot(String id, String title, float[] history, float max, float height) {
+        ImGui.textUnformatted(title);
+        ImGui.plotLines("##" + id, history, history.length, 0, null,
+                0, max, ImGui.getContentRegionAvailX(), height);
+    }
+
+    static float timeScale(float[] history, float minimum) {
+        float maximum = minimum;
+        for (float value : history)
+            if (Float.isFinite(value) && value > maximum) maximum = value;
+        return (float) Math.ceil(maximum * 1.15f);
+    }
+
     private static void refresh() {
         float[] values = NativeBridge.ready() ? NativeBridge.metrics() : EMPTY;
         if (values == null || values.length < 15) values = EMPTY;
@@ -69,22 +83,20 @@ public final class DebugMenu {
             refresh();
             nextRefreshNs = now + 500_000_000L;
         }
-        ImGui.setNextWindowSize(620, 760, ImGuiCond.FirstUseEver);
+        ImGui.setNextWindowSize(660, 760, ImGuiCond.FirstUseEver);
         if (ImGui.begin("26.3 Performance", OPEN)) {
             if (NativeBridge.ready()) {
                 ImGui.text(frameLine);
                 ImGui.text(tickLine);
                 ImGui.text(chunkLine);
                 ImGui.text(memoryLine);
-                ImGui.plotLines("Frame interval (ms)", FRAME_HISTORY, FRAME_HISTORY.length,
-                        0, null, 0, 50, 490, 60);
-                ImGui.plotLines("CPU render callback (ms)", RENDER_HISTORY, RENDER_HISTORY.length,
-                        0, null, 0, 50, 490, 60);
+                plot("frame", "Frame interval (ms)", FRAME_HISTORY, timeScale(FRAME_HISTORY, 10), 56);
+                plot("render", "CPU render callback (ms)", RENDER_HISTORY,
+                        timeScale(RENDER_HISTORY, 10), 56);
                 if (GpuFrameProfiler.hasSample())
-                    ImGui.plotLines("GPU render time (ms)", GPU_HISTORY, GPU_HISTORY.length,
-                            0, null, 0, 50, 490, 60);
-                ImGui.plotLines("Server tick (ms)", TICK_HISTORY, TICK_HISTORY.length,
-                        0, null, 0, 50, 490, 60);
+                    plot("gpu", "GPU render time (ms)", GPU_HISTORY,
+                            timeScale(GPU_HISTORY, 8), 56);
+                plot("tick", "Server tick (ms)", TICK_HISTORY, timeScale(TICK_HISTORY, 35), 56);
             } else {
                 ImGui.textWrapped("Rust profiler unavailable: " + NativeBridge.error());
             }

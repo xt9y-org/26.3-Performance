@@ -146,26 +146,29 @@ public final class SystemTelemetry {
     public static void draw() {
         ImGui.separator();
         ImGui.text("CPU / parallel execution");
-        ImGui.text(String.format(Locale.ROOT,
-                "System %.1f%%     Java process %.1f%%     Effective %.2f cores / %d available",
+        // ImGui.text() interprets percent signs as printf format specifiers.
+        ImGui.textUnformatted(String.format(Locale.ROOT,
+                "System %.1f%%     Java process %.1f%%     Effective %.2f / %d CPU cores",
                 systemPercent, processPercent, effectiveCores,
                 Runtime.getRuntime().availableProcessors()));
-        ImGui.plotLines("System CPU %", SYSTEM_HISTORY, HISTORY, 0, null, 0, 100, 490, 60);
-        ImGui.plotLines("Minecraft process %", PROCESS_HISTORY, HISTORY, 0, null, 0, 100, 490, 60);
-        if (coreLoads.length > 0)
-            ImGui.plotHistogram("Logical CPU cores %", coreLoads, coreLoads.length, 0,
-                    null, 0, 100, 490, 90);
-        else if (!hardwareError.isEmpty())
+        DebugMenu.plot("system-cpu", "System CPU utilization (%)", SYSTEM_HISTORY, 100, 56);
+        DebugMenu.plot("process-cpu", "Minecraft process CPU utilization (%)", PROCESS_HISTORY, 100, 56);
+        if (coreLoads.length > 0) {
+            ImGui.textUnformatted("Logical CPU core utilization (%)");
+            ImGui.plotHistogram("##logical-cores", coreLoads, coreLoads.length, 0,
+                    null, 0, 100, ImGui.getContentRegionAvailX(), 74);
+        } else if (!hardwareError.isEmpty()) {
             ImGui.textDisabled("Per-core hardware counters unavailable: " + hardwareError);
+        }
 
-        ImGui.plotLines("Parallel CPU cores used", PARALLEL_HISTORY, HISTORY, 0, null,
-                0, Math.max(1, Runtime.getRuntime().availableProcessors()), 490, 60);
+        DebugMenu.plot("parallel-cpu", "Effective CPU cores used by Minecraft", PARALLEL_HISTORY,
+                Math.max(1, Runtime.getRuntime().availableProcessors()), 56);
         ImGui.separator();
-        ImGui.text("JVM threads " + threadCount + "    Peak " + THREADS.getPeakThreadCount());
-        ImGui.plotLines("Thread count", THREAD_HISTORY, HISTORY, 0, null,
-                0, Math.max(32, THREADS.getPeakThreadCount()), 490, 54);
+        ImGui.textUnformatted("JVM threads " + threadCount + "    Peak " + THREADS.getPeakThreadCount());
+        DebugMenu.plot("thread-count", "JVM thread count", THREAD_HISTORY,
+                Math.max(32, THREADS.getPeakThreadCount()), 50);
         for (String thread : busiest)
-            if (thread != null) ImGui.textDisabled(thread);
+            if (thread != null) ImGui.textUnformatted(thread);
 
         ImGui.separator();
         ImGui.textWrapped("GPU: " + gpu);
