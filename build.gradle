@@ -11,6 +11,8 @@ dependencies {
     implementation "curse.maven:fabric-gui-imgui-1423038:8991300"
     include "curse.maven:fabric-gui-imgui-1423038:8991300"
     compileOnly "io.github.spair:imgui-java-binding:1.92.7.1"
+    // Minecraft already ships OSHI; use its cross-platform CPU/GPU identification API.
+    compileOnly "com.github.oshi:oshi-core:6.12.0"
 }
 // Compile and embed the native library automatically for the build machine.
 def platformName = System.getProperty('os.name').toLowerCase(Locale.ROOT)

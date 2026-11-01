@@ -4,18 +4,20 @@ Lightweight **Minecraft Java 26.3 / Fabric only** performance telemetry.
 
 ## In-game profiler
 
-**Right Shift** opens one compact ImGui window:
+**Right Shift** toggles one read-only ImGui performance window:
 
-- FPS, average frame time and P95 frame time.
-- TPS, average and P95 server tick time (integrated singleplayer only; no invented remote TPS).
-- Real server chunk load and new-generation event counts **while the profiler is enabled**.
-- Current JVM heap usage versus heap limit.
+- FPS, frame intervals, CPU render callback time, TPS and MSPT (singleplayer only).
+- Frame, render and tick histories with P95 summaries.
+- System CPU utilization, per-logical-core usage (OSHI), Minecraft process CPU usage and effective CPU-core parallelism.
+- JVM live/peak thread counts, thread-count history and the most CPU-intensive Java threads.
+- Detected GPU name. GPU utilization and GPU timings are shown as **unavailable** until real graphics-backend telemetry exists; CPU render timing is **not** GPU time.
+- Chunk load/generation event counts while the profiler is open; JVM heap usage.
 
-No gameplay-affecting controls. The profiler is read-only.
+The mod does not implement a replacement GPU renderer or choose an NRI backend yet. Minecraft's own graphics backend remains active. NRI integration would require replacing and validating terrain, entities, GUI, texture and resource submission, including GPU synchronization and swap-chain ownership.
 
 ## Performance engineering
 
-The profiler is **inactive by default**. Its Rust library is loaded only when the window is first opened; closed-window rendering and tick hooks avoid timestamp sampling, heap allocations and JNI calls. The native hot path uses bounded 240-slot atomic ring buffers. Snapshot aggregation and text formatting happen only twice per second while open.
+The profiler is **inactive by default**. Its Rust library is loaded only when the window is first opened; closed-window rendering and tick hooks avoid timestamp sampling, heap allocations and JNI calls. The native hot path uses bounded 240-slot atomic ring buffers. Snapshot aggregation, hardware polling and text formatting happen only twice per second while open.
 
 This reduces **the mod's own monitoring overhead and startup work**. It is not a claim that unmodified Minecraft terrain generation, lighting, entity ticking, renderer, or region IO is faster. Those systems require specific profiled hot spots, behavioral equivalence tests, and in-game before/after benchmarks before modifying them safely.
 
