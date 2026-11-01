@@ -10,7 +10,7 @@ Lightweight **Minecraft Java 26.3 / Fabric only** performance telemetry.
 - Frame, render and tick histories with P95 summaries.
 - System CPU utilization, per-logical-core usage (OSHI), Minecraft process CPU usage and effective CPU-core parallelism.
 - JVM live/peak thread counts, thread-count history and the most CPU-intensive Java threads.
-- Detected GPU name. GPU utilization and GPU timings are shown as **unavailable** until real graphics-backend telemetry exists; CPU render timing is **not** GPU time.
+- Detected GPU name and actual timestamp-query GPU render-time graph where supported by the active OpenGL/Vulkan backend. GPU utilization is **not** inferred from render time and remains unavailable.
 - Chunk load/generation event counts while the profiler is open; JVM heap usage.
 
 The mod does not implement a replacement GPU renderer or choose an NRI backend yet. Minecraft's own graphics backend remains active. NRI integration would require replacing and validating terrain, entities, GUI, texture and resource submission, including GPU synchronization and swap-chain ownership.

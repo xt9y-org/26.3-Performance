@@ -3,6 +3,7 @@ package dev.xt9y.perf.mixin;
 import dev.xt9y.perf.NativeBridge;
 import dev.xt9y.perf.PerformanceState;
 import dev.xt9y.perf.client.DebugMenu;
+import dev.xt9y.perf.client.GpuFrameProfiler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -27,6 +28,7 @@ public final class GameRendererMixin {
 
     @Inject(method = "render", at = @At("HEAD"))
     private void xt9y263$beforeRender(CallbackInfo ci) {
+        GpuFrameProfiler.beforeRender();
         if (dev.xt9y.perf.client.ClientFrameBenchmark.ACTIVE && minecraft.player != null)
             dev.xt9y.perf.client.ClientFrameBenchmark.frame();
         if (!PerformanceState.active()) {
@@ -43,6 +45,7 @@ public final class GameRendererMixin {
 
     @Inject(method = "render", at = @At("RETURN"))
     private void xt9y263$afterRender(CallbackInfo ci) {
+        GpuFrameProfiler.afterRender();
         if (xt9y263$smokeEnabled && !xt9y263$smokeRendered) {
             xt9y263$smokeRendered = true;
             dev.xt9y.perf.PerfMod.LOGGER.info("XT9Y_CLIENT_SMOKE: rendered a complete client frame");

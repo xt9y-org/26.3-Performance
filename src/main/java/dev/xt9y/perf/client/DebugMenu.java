@@ -16,6 +16,7 @@ public final class DebugMenu {
     private static final float[] FRAME_HISTORY = new float[120];
     private static final float[] RENDER_HISTORY = new float[120];
     private static final float[] TICK_HISTORY = new float[120];
+    private static final float[] GPU_HISTORY = new float[120];
     private static long nextRefreshNs;
     private static String frameLine = "FPS  measuring...";
     private static String tickLine = "TPS  measuring...";
@@ -57,6 +58,7 @@ public final class DebugMenu {
         push(FRAME_HISTORY, values[1]);
         push(RENDER_HISTORY, values[2]);
         push(TICK_HISTORY, values[4]);
+        push(GPU_HISTORY, GpuFrameProfiler.gpuMilliseconds());
         SystemTelemetry.sample();
     }
 
@@ -78,6 +80,9 @@ public final class DebugMenu {
                         0, null, 0, 50, 490, 60);
                 ImGui.plotLines("CPU render callback (ms)", RENDER_HISTORY, RENDER_HISTORY.length,
                         0, null, 0, 50, 490, 60);
+                if (GpuFrameProfiler.hasSample())
+                    ImGui.plotLines("GPU render time (ms)", GPU_HISTORY, GPU_HISTORY.length,
+                            0, null, 0, 50, 490, 60);
                 ImGui.plotLines("Server tick (ms)", TICK_HISTORY, TICK_HISTORY.length,
                         0, null, 0, 50, 490, 60);
             } else {

@@ -169,7 +169,11 @@ public final class SystemTelemetry {
 
         ImGui.separator();
         ImGui.textWrapped("GPU: " + gpu);
-        ImGui.textDisabled("GPU utilization / GPU time: unavailable without graphics-backend counters.");
+        ImGui.textDisabled(GpuFrameProfiler.hasSample()
+                ? String.format(Locale.ROOT, "GPU render time %.2f ms (timestamp query, not utilization)",
+                        GpuFrameProfiler.gpuMilliseconds())
+                : "GPU time: unavailable" + (GpuFrameProfiler.error().isEmpty() ? "" : " (" + GpuFrameProfiler.error() + ")"));
+        ImGui.textDisabled("GPU utilization: unavailable; GPU timing is not whole-device usage.");
         ImGui.textDisabled("Renderer: Minecraft-managed (NRI replacement not active)");
         ImGui.textDisabled("CPU plots sample every 500 ms; per-core bars show whole-system activity.");
     }
